@@ -1,46 +1,34 @@
-package com.asig.casco.screens.home
+package com.asig.casco.screens.settings
 
-import android.R
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import androidx.navigation.compose.rememberNavController
 import com.asig.casco.screens.common.BottomBar
 import com.asig.casco.screens.common.TopBar
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+
 
 
 @Composable
 @Destination(start = false)
-fun HomeScreen(
+fun SettingsScreen(
     navigator: DestinationsNavigator
 ) {
-    val navController = rememberNavController()
-
-    data class CarouselItem(val title: String)
-
-    val carouselItems = listOf(
-        CarouselItem(title = "Item 1"),
-        CarouselItem(title = "Item 2"),
-        CarouselItem(title = "Item 3"),
-        // Add more items as needed
-    )
-
+//    var darkTheme by remember { mutableStateOf(false)}
 
 
     Scaffold(
         topBar = {
-            TopBar("CascoMD", navigator)
+            TopBar("Setări", navigator)
         },
 
         bottomBar = {
@@ -58,10 +46,30 @@ fun HomeScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(bottom = innerPadding.calculateBottomPadding())
             ) {
-                Text(text = "News", style = MaterialTheme.typography.body1 )
-                PagerCarousel()
-                Text(text = "Parteneri", style = MaterialTheme.typography.body1 )
+/*                ThemeSwitch(
+                    darkTheme = darkTheme,
+                    onThemeChanged = { isDarkTheme -> darkTheme = isDarkTheme }
+                )*/
+
             }
         }
+        }
     }
-}
+
+
+
+/*
+@Composable
+fun ThemeSwitch(
+    darkTheme: Boolean,
+    onThemeChanged: (Boolean) -> Unit
+) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        androidx.compose.material3.Text(text = "Dark Mode", style = MaterialTheme.typography.h6)
+        Switch(
+            checked = darkTheme,
+            onCheckedChange = onThemeChanged,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+    }
+}*/

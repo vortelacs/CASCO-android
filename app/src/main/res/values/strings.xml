@@ -2,4 +2,8 @@
     <string name="app_name">CASCO</string>
     <string name="home_screen">Acasă</string>
     <string name="profile_screen">Profil</string>
+    <string name="settings_screen">Setări</string>
+    <string name="about_us_screen">Despre noi</string>
+    <string name="about_app_screen">Despre aplicație</string>
+    <string name="assurance_buy_screen">Asigurare nouă</string>
 </resources>
