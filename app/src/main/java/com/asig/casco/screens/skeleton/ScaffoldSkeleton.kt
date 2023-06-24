@@ -37,7 +37,7 @@ fun ScaffoldSkeleton(
 
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)
+                .padding(20.dp, 0.dp, 20.dp, 20.dp)
         ) {
             Column(
                 modifier = Modifier

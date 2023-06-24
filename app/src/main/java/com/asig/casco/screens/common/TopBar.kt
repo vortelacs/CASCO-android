@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import com.asig.casco.R
+import com.asig.casco.screens.FAQ.FAQScreen
+import com.asig.casco.screens.destinations.FAQScreenDestination
+import com.asig.casco.screens.destinations.LoginScreenDestination
 import com.asig.casco.screens.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
@@ -98,12 +101,15 @@ fun TopBar(
     }
 }
 
+    @OptIn(ExperimentalMaterialApi::class)
     fun getMenuItemsList(): ArrayList<MenuItemData> {
         val listItems = ArrayList<MenuItemData>()
 
         listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.settings_screen, icon = Icons.Outlined.Settings))
         listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.about_us_screen, icon = Icons.Outlined.Star))
         listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.about_app_screen, icon = Icons.Outlined.Info))
+        listItems.add(MenuItemData(FAQScreenDestination, text = R.string.faq_screen, icon = Icons.Outlined.Info))
+        listItems.add(MenuItemData(LoginScreenDestination, text = R.string.log_out, icon = Icons.Outlined.Info))
 
         return listItems
     }

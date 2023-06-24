@@ -1,140 +1,275 @@
 package com.asig.casco.screens.assurance
 
-import androidx.compose.ui.geometry.Size
-import androidx.compose.foundation.clickable
+import android.util.Patterns
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import com.asig.casco.screens.skeleton.ScaffoldSkeleton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.PopupProperties
-import com.asig.casco.ui.theme.CASCOTheme
-import com.google.android.material.color.MaterialColors.ALPHA_DISABLED
-import com.google.android.material.color.MaterialColors.ALPHA_FULL
+import com.asig.casco.api.build.RetrofitFactory
+import com.asig.casco.api.interfaces.TariffApi
+import com.asig.casco.screens.common.checkBox
+import com.asig.casco.screens.common.dropDownMenu
+import com.asig.casco.screens.common.inpuText
+import com.asig.casco.screens.destinations.LoginScreenDestination
 
 @Destination(start = false)
 @Composable
 fun AssuranceFormScreen(
     navigator: DestinationsNavigator
 ) {
+    val retrofitTariff = RetrofitFactory().getRetrofitInstance()
+    retrofitTariff.create(TariffApi::class.java)
 
+    val fullName = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val IDNP = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val email = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val phone = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val additionalIDNP = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val additionalFullName = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val model = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val make = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val year = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val price = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val certificateNumber = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val registrationNumber = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val screenNumber = remember {
+        mutableStateOf(1)
+    }
+
+    val selectedCurrency = remember {
+        mutableStateOf(0)
+    }
+
+    val selectedType = remember {
+        mutableStateOf(0)
+    }
 
     ScaffoldSkeleton(navigator = navigator, titleBar = "New assurance") {
-        val listItems = arrayListOf("Favorites", "Options", "Settings", "Share")
-        var selectedIndex by remember { mutableStateOf(0) }
-       dropDownMenu(listItems)
-
-    }
 
 
-}
+        Column(modifier = Modifier.padding(45.dp, 10.dp, 45.dp, 10.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun dropDownMenu(
-    items: List<String>,
-    enabled: Boolean = true,
-) {
-    var selectedIndex by remember { mutableStateOf(0) }
-    var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("") }
-    var textFieldSize by remember { mutableStateOf(Size.Zero) }
-
-    val icon = if (expanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
+        ) {
 
 
-    Column(Modifier.padding(20.dp)) {
-        Box(modifier = Modifier.height(IntrinsicSize.Min)) {
-            OutlinedTextField(
-                value = selectedText,
-                readOnly = true,
-                onValueChange = { selectedText = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        //This value is used to assign to the DropDown the same width
-                        textFieldSize = coordinates.size.toSize()
-                    },
-                label = { Text("Label") },
-                trailingIcon = {
-                    Icon(icon, "contentDescription",
-                        Modifier.clickable { expanded = !expanded })
-                }
-            )
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 8.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .clickable(enabled = enabled) { expanded = true },
-                color = Color.Transparent,
-            ) {}
-        }
+            Spacer(modifier = Modifier.height(15.dp))
 
-            DropdownMenu(
-                expanded = expanded,
-                properties = PopupProperties(focusable = true),
-                onDismissRequest = { expanded = false },
-                modifier = Modifier
-                    .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
-            ) {
-                items.forEach { label ->
-                    DropdownMenuItem(
+            if(screenNumber.value == 1) {
+                personDetails(fullName, email, phone, IDNP, additionalFullName, additionalIDNP)
+                Spacer(modifier = Modifier.height(15.dp))
+                Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+                    Button(
                         onClick = {
-
-                            selectedText = label
-                            expanded = false
+                            screenNumber.value = 2
                         },
-                        text = {
-                            Text(text = label)
-                        })
+                        shape = RoundedCornerShape(5.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        androidx.compose.material.Text(text = "Mai departe")
+                    }
                 }
+            }else {
+                vehicleDetails(selectedType, make, model, year, price, selectedCurrency, certificateNumber, registrationNumber)
+                Spacer(modifier = Modifier.height(15.dp))
+                checkBox("Accept termenii si conditiile")
+                checkBox("Accept prelucrarea datelor cu caracter personal")
+                Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+                    Button(
+                        onClick = {
+                            screenNumber.value = 1
+                        },
+                        shape = RoundedCornerShape(5.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        androidx.compose.material.Text(text = "Înapoi")
+                    }
+                }
+            }
             
+
         }
     }
 }
 
+@Composable
+fun personDetails(
+    fullName : MutableState<TextFieldValue>,
+    email : MutableState<TextFieldValue>,
+    phone : MutableState<TextFieldValue>,
+    IDNP : MutableState<TextFieldValue>,
+    aditionalFullName: MutableState<TextFieldValue>,
+    aditionalIDNP: MutableState<TextFieldValue>,
+){
 
-@OptIn(ExperimentalMaterial3Api::class)
+    var emailError by remember { mutableStateOf(false) }
+
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "Nume si prenume") },
+        value = fullName.value,
+        onValueChange = { fullName.value = it },
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "IDNO/IDNP") },
+        value = IDNP.value,
+        onValueChange = { IDNP.value = it },
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        value = email.value,
+        onValueChange = {
+            email.value = it
+            emailError = !Patterns.EMAIL_ADDRESS.matcher(it.text).matches()
+        },
+        label = { Text("Email") },
+        isError = emailError,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "Număr de telefon") },
+        value = phone.value,
+        onValueChange = { phone.value = it },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "Nume și prenume(șofer adițional)") },
+        value = aditionalFullName.value,
+        onValueChange = { aditionalFullName.value = it },
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "IDNO/IDNP(șofer adițional)") },
+        value = aditionalIDNP.value,
+        onValueChange = { aditionalIDNP.value = it },
+
+    )
+
+    Spacer(modifier = Modifier.height(15.dp))
+
+}
+
+@Composable
+fun vehicleDetails(
+    type : MutableState<Int>,
+    make : MutableState<TextFieldValue>,
+    model : MutableState<TextFieldValue>,
+    year: MutableState<TextFieldValue>,
+    price: MutableState<TextFieldValue>,
+    currency: MutableState<Int>,
+    certificateNumber : MutableState<TextFieldValue>,
+    registrationNumber: MutableState<TextFieldValue>,
+){
+
+    Spacer(modifier = Modifier.height(15.dp))
+
+    dropDownMenu(getCarTypesList(), label = "Tipul vehicului", selectedIndex = type)
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        modifier = Modifier.fillMaxWidth(),
+        label = { androidx.compose.material.Text(text = "Marca") },
+        value = make.value,
+        onValueChange = { make.value = it },
+    )
+    dropDownMenu(getCurrencyList(), label = "Model", selectedIndex = currency)
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "Anul fabricației") },
+        value = year.value,
+        onValueChange = { year.value = it },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "Nume și prenume(șofer adițional)") },
+        value = certificateNumber.value,
+        onValueChange = { certificateNumber.value = it },
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { androidx.compose.material.Text(text = "Num[r de ]nregistrare") },
+        value = registrationNumber.value,
+        onValueChange = { registrationNumber.value = it },
+
+        )
+
+    Spacer(modifier = Modifier.height(15.dp))
+
+    Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+        Button(
+            onClick = {},
+            shape = RoundedCornerShape(5.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        ) {
+            androidx.compose.material.Text(text = "Mai departe")
+        }
+    }
+}
+
+fun getCarTypesList(): ArrayList<String>{
+    return arrayListOf("Autoturism", "Autobuz", "Autocamion", "Vehicul agricol", "Troleibuz", "Remorcă / semiremorcă", "Utilaj suplimentar pentru vehicule")
+}
+fun getCurrencyList(): ArrayList<String>{
+    return arrayListOf("Lei", "Euro")
+}
+
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <String> LargeDropdownMenu(
     modifier: Modifier = Modifier,
@@ -209,8 +344,9 @@ fun <String> LargeDropdownMenu(
             }
         }
     }
-}
+}*/
 
+/*
 
     @Composable
     fun LargeDropdownMenuItem(
@@ -237,6 +373,7 @@ fun <String> LargeDropdownMenu(
             }
         }
     }
+*/
 
 
 /*            Dialog(
