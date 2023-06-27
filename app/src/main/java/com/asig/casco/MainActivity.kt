@@ -12,8 +12,10 @@ import androidx.compose.runtime.setValue
 import com.asig.casco.screens.NavGraphs
 import com.asig.casco.ui.theme.CASCOTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {

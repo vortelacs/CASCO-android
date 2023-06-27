@@ -13,6 +13,6 @@ interface AuthApi{
     @POST("auth/login")
     suspend fun login(@Body credentials : User): Token
 
-    @POST("auth/validateToken")
+    @POST("johnauth/validateToken")
     suspend fun checkToken(@Body token : String = ""): Boolean
 }

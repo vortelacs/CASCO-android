@@ -7,7 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.asig.casco.api.utils.NetworkConnectionInterceptor
 import com.asig.casco.model.Token
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 
 class AuthViewModel(
@@ -15,32 +19,37 @@ class AuthViewModel(
 ) : ViewModel() {
 
     private val authService = AuthService()
-    private val tokenStorage =  TokenStorage(context)
+    private val userDataStorage =  UserDataStorage(context)
     private val networkConnectionInterceptor = NetworkConnectionInterceptor(context)
 
+    // Create a LiveData to hold the login result
+    private val _loginResult = MutableStateFlow<Boolean>(false)
+    val loginResult: StateFlow<Boolean> = _loginResult
 
-    fun login(username: String, password: String) : Boolean {
+    private val _loginAttempted = MutableStateFlow<Boolean>(false)
+    val loginAttempted: StateFlow<Boolean> = _loginAttempted
 
+
+     fun login(username: String, password: String)  {
+        //TODO check internet connection
         networkConnectionInterceptor.isNetworkAvailable()
-        var result = false
-        var token: Token? = null
 
-        viewModelScope.launch {
-            try {
-            token = authService.sendLoginRequest(username, password)
-            }catch (e: Exception) {
-                print(e)
-                result = false
+         viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val token = authService.sendLoginRequest(username, password)
+                    if (token != null) {
+                        userDataStorage.saveToken(token.token)
+                        userDataStorage.saveEmail(username)
+                    }
+                    _loginResult.emit(true)
+                    _loginAttempted.emit(true)
+                } catch (e: Exception) {
+                    _loginResult.emit(false)
+                }
             }
+         }
 
-            if (token != null) {
-                Log.i("token", token!!.token)
-                tokenStorage.saveData(token!!.token)
-                if (checkTokenValid()) result = false
-            }
-        }
-
-        return result
     }
 
     fun checkTokenValid(): Boolean {
@@ -48,13 +57,13 @@ class AuthViewModel(
         var token = Token("")
 
         viewModelScope.launch {
-            val string = tokenStorage.getToken.first()
+            val string = userDataStorage.getToken.first()
             if (string != null) {
                 Log.i("token123", string)
             }
             if (string != null && string != "")
-                token = string.let { Token(it) }!!
-            if (tokenStorage.isKeyStored(TokenStorage.TOKEN).first()) {
+                token = Token(string)
+            if (userDataStorage.isKeyStored(UserDataStorage.TOKEN).first()) {
                 result = try {
                     authService.sendCheckTokenRequest(token) == true
                 }catch (e: SocketTimeoutException) {

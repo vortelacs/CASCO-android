@@ -135,18 +135,15 @@ fun inpuText(
 
 @Composable
 fun checkBox(
-    label : String
+    label : String,
+    checked: MutableState<Boolean>
 ){
-
-    var checked by remember {
-        mutableStateOf(true)
-    }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
     Checkbox(
-        checked = checked,
+        checked = checked.value,
         onCheckedChange = { checked_ ->
-            checked = checked_
+            checked.value = checked_
         }
     )
         Text(

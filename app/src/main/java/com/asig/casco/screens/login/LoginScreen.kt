@@ -7,11 +7,12 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.*
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -22,10 +23,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
-import com.asig.casco.model.Token
 import com.asig.casco.screens.destinations.HomeScreenDestination
+import com.asig.casco.screens.destinations.ProfileScreenDestination
 import com.asig.casco.screens.destinations.SignUpDestination
-import com.asig.casco.security.TokenStorage
+import com.asig.casco.security.UserDataStorage
 import com.asig.casco.security.AuthViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -36,12 +37,22 @@ fun LoginScreen(
     navigator: DestinationsNavigator
 ){
     val context = LocalContext.current
-    val tokenStorage =  TokenStorage(context)
     val authViewModel = AuthViewModel(context)
+    val loginAttempted by authViewModel.loginAttempted.collectAsState()
 
 /*    if(authViewModel.checkTokenValid()){
             navigator.navigate(HomeScreenDestination)
     }*/
+
+    LaunchedEffect(key1 = authViewModel) {
+        authViewModel.loginResult.collect { loginResult ->
+            if (loginResult) {
+                navigator.navigate(HomeScreenDestination)
+            } else if (!loginResult && loginAttempted) {
+                Toast.makeText(context, "Problems with connection", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ClickableText(
@@ -92,10 +103,9 @@ fun LoginScreen(
         Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
             Button(
                 onClick = {
-//                    if(authViewModel.login(username.value.text.trim(), password.value.text.trim()))
-                        navigator.navigate(HomeScreenDestination)
-//                    else
-//                        Toast.makeText(context, "Problems with connection", Toast.LENGTH_LONG).show()
+                    //authViewModel.makeLogin(username.value.text.trim(), password.value.text.trim())
+                    authViewModel.login("johndoy1@mail.ru", "1234")
+//                    navigator.navigate(ProfileScreenDestination)
                 },
                 shape = RoundedCornerShape(5.dp),
                 modifier = Modifier
@@ -112,10 +122,7 @@ fun LoginScreen(
         Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
             Button(
                 onClick = {
-//                    if(authViewModel.login(username.value.text.trim(), password.value.text.trim()))
                     navigator.navigate(SignUpDestination)
-//                    else
-//                        Toast.makeText(context, "Problems with connection", Toast.LENGTH_LONG).show()
                 },
                 shape = RoundedCornerShape(5.dp),
                 modifier = Modifier

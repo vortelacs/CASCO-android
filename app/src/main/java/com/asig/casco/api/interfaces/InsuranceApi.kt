@@ -1,10 +1,14 @@
 package com.asig.casco.api.interfaces
 
+import com.asig.casco.model.EmailRequest
+import com.asig.casco.model.Insurance
 import com.asig.casco.model.Insurer
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 public interface InsuranceApi {
@@ -12,8 +16,11 @@ public interface InsuranceApi {
         "Accept: application/json"
     )
     @GET("insurance/{id}")
-    abstract fun getInsuracnceByID(@Header("Authorization") accessToken: String, @Path("id") id: String): Call<Insurer?>?
+    suspend fun getInsuracnceByID(@Header("Authorization") accessToken: String, @Path("id") id: String): Insurance
 
-    @GET("insuranceByUser")
-    abstract fun getInsurancesByUserId(@Header("Authorization") accessToken: String): Call<ArrayList<Insurer>>
+
+    @POST("insurance/getByUserEmail")
+    suspend fun getInsurancesByUserEmail(@Header("Authorization") token: String, @Body emailRequest: EmailRequest): ArrayList<Insurance>
+    @POST("insurance/saveInsurance")
+    suspend fun saveInsurance(@Header("Authorization") token: String, @Body insurance : Insurance): Insurance
 }

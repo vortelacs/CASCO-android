@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp' version '1.8.20-1.0.11'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-kapt'
 }
 
 kotlin {
@@ -95,7 +97,14 @@ dependencies {
     runtimeOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
     implementation("io.github.osipxd:security-crypto-datastore:1.0.0-alpha04")
     implementation("io.github.osipxd:security-crypto-datastore-preferences:1.0.0-alpha04")
-
+    implementation 'com.google.dagger:hilt-android:2.46.1'
+    kapt 'com.google.dagger:hilt-compiler:2.46.1'
+    implementation  'androidx.hilt:hilt-navigation-compose:1.1.0-alpha01'
+    runtimeOnly 'androidx.fragment:fragment-ktx:1.7.0-alpha01'
+    runtimeOnly 'androidx.activity:activity-ktx:1.8.0-alpha06'
+    implementation 'io.coil-kt:coil:2.4.0'
+    implementation 'io.coil-kt:coil-compose-base:2.0.0'
+    implementation 'io.coil-kt:coil-compose:2.4.0'
 
 
 }

@@ -1,22 +1,21 @@
 package com.asig.casco.api.build
 
-import android.content.Context
-import com.asig.casco.api.utils.NetworkConnectionInterceptor
-import com.asig.casco.security.AuthApi
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitFactory (){
+class RetrofitFactory {
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .build()
 
     private val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.31.192:8080")
+        .baseUrl("http://192.168.31.182:8080/")
+        .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     fun getRetrofitInstance(): Retrofit {
         return retrofit
     }
-
-
-
 }

@@ -1,20 +1,23 @@
 package com.asig.casco.screens.assurance
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,43 +26,71 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.asig.casco.api.build.RetrofitFactory
+import com.asig.casco.api.interfaces.TariffApi
+import com.asig.casco.api.viewmodel.InsuranceViewModel
+import com.asig.casco.api.viewmodel.TariffViewModel
+import com.asig.casco.model.Tariff
+import com.asig.casco.screens.common.checkBox
+import com.asig.casco.screens.common.dropDownMenu
 import com.asig.casco.screens.skeleton.ScaffoldSkeleton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import androidx.compose.ui.unit.dp
-import com.asig.casco.api.build.RetrofitFactory
-import com.asig.casco.api.interfaces.TariffApi
-import com.asig.casco.screens.common.checkBox
-import com.asig.casco.screens.common.dropDownMenu
-import com.asig.casco.screens.common.inpuText
-import com.asig.casco.screens.destinations.LoginScreenDestination
+
 
 @Destination(start = false)
 @Composable
 fun AssuranceFormScreen(
     navigator: DestinationsNavigator
 ) {
+
+    val tariffViewModel : TariffViewModel = hiltViewModel()
+    val insuranceViewModel : InsuranceViewModel = hiltViewModel()
+    var tariff : Tariff
+
+    val tariffPrice by tariffViewModel.getTariffResult.collectAsState(initial = -1)
+/*
+    LaunchedEffect(key1 = tariffViewModel) {
+        tariffViewModel.getTariffResult.collect { tariffResult ->
+            if(tariffPrice != -1)
+        }
+    }*/
+
+    LaunchedEffect(key1 = "loadInsurances") {
+        insuranceViewModel.getInsuranceByEmail("johndoy1@mail.ru")
+    }
+
+
     val retrofitTariff = RetrofitFactory().getRetrofitInstance()
     retrofitTariff.create(TariffApi::class.java)
 
-    val fullName = remember {
+    val firstName = remember {
+        mutableStateOf(TextFieldValue())
+    }
+    val lastName = remember {
         mutableStateOf(TextFieldValue())
     }
     val IDNP = remember {
         mutableStateOf(TextFieldValue())
     }
-    val email = remember {
+/*    val email = remember {
         mutableStateOf(TextFieldValue())
-    }
+    }*/
     val phone = remember {
         mutableStateOf(TextFieldValue())
     }
     val additionalIDNP = remember {
         mutableStateOf(TextFieldValue())
     }
-    val additionalFullName = remember {
+    val additionalFirstName = remember {
         mutableStateOf(TextFieldValue())
     }
+    val additionalLastName = remember {
+        mutableStateOf(TextFieldValue())
+    }
+
     val model = remember {
         mutableStateOf(TextFieldValue())
     }
@@ -87,8 +118,11 @@ fun AssuranceFormScreen(
     }
 
     val selectedType = remember {
-        mutableStateOf(0)
+        mutableStateOf(-1)
     }
+    val showAdditionalPerson = remember { mutableStateOf(false) }
+    val acceptDataProcessing = remember { mutableStateOf(false) }
+    val acceptTerms = remember { mutableStateOf(false) }
 
     ScaffoldSkeleton(navigator = navigator, titleBar = "New assurance") {
 
@@ -103,7 +137,7 @@ fun AssuranceFormScreen(
             Spacer(modifier = Modifier.height(15.dp))
 
             if(screenNumber.value == 1) {
-                personDetails(fullName, email, phone, IDNP, additionalFullName, additionalIDNP)
+                personDetails(firstName, lastName, phone, IDNP, additionalFirstName, additionalLastName,additionalIDNP, showAdditionalPerson)
                 Spacer(modifier = Modifier.height(15.dp))
                 Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
                     Button(
@@ -115,27 +149,83 @@ fun AssuranceFormScreen(
                             .fillMaxWidth()
                             .height(50.dp)
                     ) {
-                        androidx.compose.material.Text(text = "Mai departe")
+                        Text(text = "Mai departe")
                     }
                 }
             }else {
                 vehicleDetails(selectedType, make, model, year, price, selectedCurrency, certificateNumber, registrationNumber)
                 Spacer(modifier = Modifier.height(15.dp))
-                checkBox("Accept termenii si conditiile")
-                checkBox("Accept prelucrarea datelor cu caracter personal")
+                checkBox("Accept termenii si conditiile", acceptDataProcessing)
+                checkBox("Accept prelucrarea datelor cu caracter personal", acceptTerms)
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+
+                ) {
+                    Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+                        Button(
+                            onClick = {
+                                screenNumber.value = 1
+                            },
+                            shape = RoundedCornerShape(5.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                        ) {
+                            Text(text = "Înapoi")
+                        }
+                    }
                 Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
                     Button(
                         onClick = {
-                            screenNumber.value = 1
+                            if(selectedType.value !=  -1 && year.value.text.isNotBlank() && price.value.text.isNotBlank()) {
+
+                                tariff = Tariff(
+                                    insurer = "moldasig",
+                                    insuranceType = "casco",
+                                    vehicleType =  getCarTypesList()[selectedType.value],
+                                    age = year.value.text.toInt(),
+                                    isFranchise = false
+                                )
+                                 tariffViewModel.getTarriff(tariff)
+                            }
                         },
                         shape = RoundedCornerShape(5.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp)
+                            .height(50.dp),
+                        enabled = selectedType.value !=  -1 && year.value.text.isNotBlank() && price.value.text.isNotBlank()
                     ) {
-                        androidx.compose.material.Text(text = "Înapoi")
+                        Text(text = "Verifică prețul")
                     }
                 }
+                }
+                if(tariffPrice != 0 && price.value.text.isNotBlank()) {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+                            Text(text = (tariffPrice.toDouble() * price.value.text.toDouble()).toString())
+                        }
+                        Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
+                            Button(
+                                onClick = {
+                                },
+                                shape = RoundedCornerShape(5.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp)
+                            ) {
+                                Text(text = "Procură")
+                            }
+                        }
+
+                    }
+                }
+
             }
             
 
@@ -143,31 +233,41 @@ fun AssuranceFormScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun personDetails(
-    fullName : MutableState<TextFieldValue>,
-    email : MutableState<TextFieldValue>,
+    firstName : MutableState<TextFieldValue>,
+    lastName : MutableState<TextFieldValue>,
+/*    email : MutableState<TextFieldValue>,*/
     phone : MutableState<TextFieldValue>,
     IDNP : MutableState<TextFieldValue>,
-    aditionalFullName: MutableState<TextFieldValue>,
+    aditionalFirstName: MutableState<TextFieldValue>,
+    aditionalLastName: MutableState<TextFieldValue>,
     aditionalIDNP: MutableState<TextFieldValue>,
+    showAdditionalPerson: MutableState<Boolean>
 ){
 
     var emailError by remember { mutableStateOf(false) }
 
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
-        label = { androidx.compose.material.Text(text = "Nume si prenume") },
-        value = fullName.value,
-        onValueChange = { fullName.value = it },
+        label = { Text(text = "Prenume") },
+        value = firstName.value,
+        onValueChange = { firstName.value = it },
     )
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
-        label = { androidx.compose.material.Text(text = "IDNO/IDNP") },
+        label = { Text(text = "Nume") },
+        value = lastName.value,
+        onValueChange = { lastName.value = it },
+    )
+    Spacer(modifier = Modifier.height(15.dp))
+    TextField(
+        label = { Text(text = "IDNO/IDNP") },
         value = IDNP.value,
         onValueChange = { IDNP.value = it },
     )
-    Spacer(modifier = Modifier.height(15.dp))
+/*    Spacer(modifier = Modifier.height(15.dp))
     TextField(
         value = email.value,
         onValueChange = {
@@ -177,32 +277,46 @@ fun personDetails(
         label = { Text("Email") },
         isError = emailError,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-    )
+    )*/
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
-        label = { androidx.compose.material.Text(text = "Număr de telefon") },
+        label = { Text(text = "Număr de telefon") },
         value = phone.value,
         onValueChange = { phone.value = it },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
     )
-    Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        label = { androidx.compose.material.Text(text = "Nume și prenume(șofer adițional)") },
-        value = aditionalFullName.value,
-        onValueChange = { aditionalFullName.value = it },
-    )
-    Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        label = { androidx.compose.material.Text(text = "IDNO/IDNP(șofer adițional)") },
-        value = aditionalIDNP.value,
-        onValueChange = { aditionalIDNP.value = it },
 
+    checkBox(
+        label = "Adăugați o persoană suplimentară",
+        checked = showAdditionalPerson
     )
+    if(showAdditionalPerson.value){
+        Spacer(modifier = Modifier.height(15.dp))
+        TextField(
+            label = { Text(text = "Prenume(șofer adițional)") },
+            value = aditionalFirstName.value,
+            onValueChange = { aditionalFirstName.value = it },
+        )
+        Spacer(modifier = Modifier.height(15.dp))
+        TextField(
+            label = { Text(text = "Nume(șofer adițional)") },
+            value = aditionalLastName.value,
+            onValueChange = { aditionalLastName.value = it },
+        )
+        Spacer(modifier = Modifier.height(15.dp))
+        TextField(
+            label = { Text(text = "IDNO/IDNP(șofer adițional)") },
+            value = aditionalIDNP.value,
+            onValueChange = { aditionalIDNP.value = it },
+
+        )
+}
 
     Spacer(modifier = Modifier.height(15.dp))
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun vehicleDetails(
     type : MutableState<Int>,
@@ -221,27 +335,27 @@ fun vehicleDetails(
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
         modifier = Modifier.fillMaxWidth(),
-        label = { androidx.compose.material.Text(text = "Marca") },
+        label = { Text(text = "Marca") },
         value = make.value,
         onValueChange = { make.value = it },
     )
     dropDownMenu(getCurrencyList(), label = "Model", selectedIndex = currency)
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
-        label = { androidx.compose.material.Text(text = "Anul fabricației") },
+        label = { Text(text = "Anul fabricației") },
         value = year.value,
         onValueChange = { year.value = it },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     )
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
-        label = { androidx.compose.material.Text(text = "Nume și prenume(șofer adițional)") },
+        label = { Text(text = "Nume și prenume(șofer adițional)") },
         value = certificateNumber.value,
         onValueChange = { certificateNumber.value = it },
     )
     Spacer(modifier = Modifier.height(15.dp))
     TextField(
-        label = { androidx.compose.material.Text(text = "Num[r de ]nregistrare") },
+        label = { Text(text = "Număr de înregistrare") },
         value = registrationNumber.value,
         onValueChange = { registrationNumber.value = it },
 
@@ -257,7 +371,7 @@ fun vehicleDetails(
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            androidx.compose.material.Text(text = "Mai departe")
+            Text(text = "Mai departe")
         }
     }
 }

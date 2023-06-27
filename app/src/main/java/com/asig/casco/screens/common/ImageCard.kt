@@ -2,7 +2,6 @@ package com.asig.casco.screens.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +20,13 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+
 
 @Composable
 fun ImageCard(
-    painter: Painter,
+    painter: Painter? = null,
+    imageUrl: String = "",
     contentDescription: String,
     title: String,
     modifier: Modifier = Modifier
@@ -39,9 +41,22 @@ fun ImageCard(
         elevation = 5.dp,
     ) {
         Box(modifier = Modifier.height(200.dp)){
-            Image(painter = painter, contentDescription, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-            Box(modifier = Modifier.
-            fillMaxSize()
+            if(painter !=null)
+                Image(painter = painter, contentDescription, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            else if(imageUrl != ""/* && imageUrl.isNotEmpty() && imageUrl.isNotBlank()*/){
+                Image(
+                    painter = rememberAsyncImagePainter(imageUrl),
+                    contentDescription = contentDescription,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+/*            AsyncImage(
+                model = "https://example.com/image.jpg",
+                contentDescription = null,
+            )*/
+            Box(modifier = Modifier
+                .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(

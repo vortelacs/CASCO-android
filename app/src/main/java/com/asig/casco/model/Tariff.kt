@@ -1,9 +1,9 @@
 package com.asig.casco.model
 
 data class Tariff(
-    val insurer: String,
-    val insuranceType: String,
-    val vehicleType: String,
-    val age: Int,
-    val isFranchise: Boolean
+    var insurer: String,
+    var insuranceType: String,
+    var vehicleType: String,
+    var age: Int,
+    var isFranchise: Boolean
     )

@@ -17,11 +17,9 @@ public interface TariffApi {
     @GET("insurer/{id}")
     abstract fun getTariffRate(@Header("Authorization") accessToken: String, @Path("id") id: String): Int
 
-    interface ApiService {
-        @POST("/calculate")
-        suspend fun calculateTariff(@Body tariffDTO: Tariff): Response<Double>
-    }
 
+        @POST("calculate")
+        suspend fun getPrice(@Header("Authorization") accessToken: String, @Body tariffDTO: Tariff): Double
 
 
 }

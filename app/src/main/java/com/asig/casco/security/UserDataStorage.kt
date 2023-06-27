@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.Flow
 import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.flow.map
 
-class TokenStorage(private val context: Context) {
+class UserDataStorage(private val context: Context) {
 
     companion object {
-        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "stored_token")
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_data")
         val TOKEN = stringPreferencesKey("stored_token")
+        val EMAIL = stringPreferencesKey("stored_email")
     }
 
     val getToken: Flow<String?> = context.dataStore.data
@@ -21,9 +22,20 @@ class TokenStorage(private val context: Context) {
             preferences[TOKEN]
         }
 
-    suspend fun saveData(name: String) {
+    val getEmail: Flow<String?> = context.dataStore.data // Add this block
+        .map { preferences ->
+            preferences[EMAIL]
+        }
+
+    suspend fun saveToken(name: String) {
         context.dataStore.edit { preferences ->
             preferences[TOKEN] = name
+        }
+    }
+
+    suspend fun saveEmail(email: String) {
+        context.dataStore.edit { preferences ->
+            preferences[EMAIL] = email
         }
     }
 

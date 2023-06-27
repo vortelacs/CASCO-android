@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.asig.casco.screens.common.BottomBar
 import com.asig.casco.screens.common.TopBar
-import com.asig.casco.screens.home.PagerCarousel
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Composable
