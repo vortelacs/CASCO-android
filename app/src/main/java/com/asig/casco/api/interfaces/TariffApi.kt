@@ -18,7 +18,7 @@ public interface TariffApi {
     abstract fun getTariffRate(@Header("Authorization") accessToken: String, @Path("id") id: String): Int
 
 
-        @POST("calculate")
+        @POST("getTariff")
         suspend fun getPrice(@Header("Authorization") accessToken: String, @Body tariffDTO: Tariff): Double
 
 

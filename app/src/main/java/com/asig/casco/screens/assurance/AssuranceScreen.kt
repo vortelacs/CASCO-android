@@ -4,7 +4,9 @@ import androidx.compose.foundation.clickable
 import com.asig.casco.screens.destinations.AssuranceFormScreenDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,6 +30,7 @@ ScaffoldSkeleton(navigator = navigator, titleBar = "Asigurare noua") {
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+        Spacer(modifier = Modifier.height(10.dp))
         ImageCard(painter = painterResource(R.drawable.casco),
             contentDescription = "Casco",
             title = "Casco",

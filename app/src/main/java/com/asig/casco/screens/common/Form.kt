@@ -50,7 +50,6 @@ fun dropDownMenu(
     selectedIndex: MutableState<Int>,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf("") }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
     val icon = if (expanded)
@@ -58,14 +57,13 @@ fun dropDownMenu(
     else
         Icons.Filled.KeyboardArrowDown
 
-
     Column() {
         Box(modifier = Modifier.height(IntrinsicSize.Min).
         fillMaxWidth()) {
             OutlinedTextField(
-                value = selectedText,
+                value = if (selectedIndex.value in items.indices) items[selectedIndex.value] else "",
                 readOnly = true,
-                onValueChange = { selectedText = it },
+                onValueChange = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .onGloballyPositioned { coordinates ->
@@ -95,18 +93,16 @@ fun dropDownMenu(
             modifier = Modifier
                 .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
         ) {
-            items.forEach { label ->
+            items.forEachIndexed { index, label ->
                 DropdownMenuItem(
                     onClick = {
-
-                        selectedText = label
+                        selectedIndex.value = index
                         expanded = false
                     },
                     text = {
                         Text(text = label)
                     })
             }
-
         }
     }
 }
