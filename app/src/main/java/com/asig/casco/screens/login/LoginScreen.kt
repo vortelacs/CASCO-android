@@ -31,11 +31,13 @@ import com.asig.casco.security.AuthViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+
 @Composable
-@Destination(start = true)
+@Destination(start = false)
 fun LoginScreen(
     navigator: DestinationsNavigator
 ){
+//    navigator.navigate(PaymentDestination)
     val context = LocalContext.current
     val authViewModel = AuthViewModel(context)
     val loginAttempted by authViewModel.loginAttempted.collectAsState()

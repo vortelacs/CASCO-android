@@ -16,6 +16,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -41,6 +42,7 @@ import com.asig.casco.api.build.RetrofitFactory
 import com.asig.casco.api.interfaces.TariffApi
 import com.asig.casco.api.viewmodel.InsuranceViewModel
 import com.asig.casco.api.viewmodel.TariffViewModel
+import com.asig.casco.model.FormFieldState
 import com.asig.casco.model.Tariff
 import com.asig.casco.screens.common.checkBox
 import com.asig.casco.screens.common.dropDownMenu
@@ -75,49 +77,20 @@ fun AssuranceFormScreen(
     val retrofitTariff = RetrofitFactory().getRetrofitInstance()
     retrofitTariff.create(TariffApi::class.java)
 
-    val firstName = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val lastName = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val IDNP = remember {
-        mutableStateOf(TextFieldValue())
-    }
-/*    val email = remember {
-        mutableStateOf(TextFieldValue())
-    }*/
-    val phone = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val additionalIDNP = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val additionalFirstName = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val additionalLastName = remember {
-        mutableStateOf(TextFieldValue())
-    }
+    val firstName = remember { mutableStateOf(FormFieldState()) }
+    val lastName = remember { mutableStateOf(FormFieldState()) }
+    val IDNP = remember { mutableStateOf(FormFieldState()) }
+    val phone = remember { mutableStateOf(FormFieldState()) }
+    val additionalIDNP = remember { mutableStateOf(FormFieldState()) }
+    val additionalFirstName = remember { mutableStateOf(FormFieldState()) }
+    val additionalLastName = remember { mutableStateOf(FormFieldState()) }
+    val model = remember { mutableStateOf(FormFieldState()) }
+    val make = remember { mutableStateOf(FormFieldState()) }
+    val year = remember { mutableStateOf(FormFieldState()) }
+    val price = remember { mutableStateOf(FormFieldState()) }
+    val certificateNumber = remember { mutableStateOf(FormFieldState()) }
+    val registrationNumber = remember { mutableStateOf(FormFieldState()) }
 
-    val model = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val make = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val year = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val price = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val certificateNumber = remember {
-        mutableStateOf(TextFieldValue())
-    }
-    val registrationNumber = remember {
-        mutableStateOf(TextFieldValue())
-    }
     val screenNumber = remember {
         mutableStateOf(1)
     }
@@ -125,7 +98,7 @@ fun AssuranceFormScreen(
     val selectedCurrency = remember {
         mutableStateOf(0)
     }
-
+    val openDialog = remember { mutableStateOf(false) }
     val showConfirmDialog = remember { mutableStateOf(false) }
 
     val selectedType = remember {
@@ -188,13 +161,13 @@ fun AssuranceFormScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         onClick = {
-                            if(year.value.text.isNotBlank() && price.value.text.isNotBlank()) {
+                            if(year.value.value.text.isNotBlank() && price.value.value.text.isNotBlank()) {
 
                                 tariff = Tariff(
                                     insurer = "moldasig",
                                     insuranceType = "casco",
                                     vehicleType =  getCarTypesList()[selectedType.value],
-                                    age = year.value.text.toInt(),
+                                    age = year.value.value.text.toInt(),
                                     isFranchise = false
                                 )
                                 tariffViewModel.getTarriff(tariff)
@@ -205,12 +178,12 @@ fun AssuranceFormScreen(
                             .weight(1f)
                             .height(50.dp),
                             //.padding(20.dp, 0.dp, 40.dp, 0.dp),
-                        enabled = year.value.text.isNotBlank() && price.value.text.isNotBlank()
+                        enabled = year.value.value.text.isNotBlank() && price.value.value.text.isNotBlank()
                     ) {
                         Text(text = "Verifică prețul")
                     }
                 }
-                if(tariffPrice != 0 && price.value.text.isNotBlank()) {
+                if(tariffPrice != 0 && price.value.value.text.isNotBlank()) {
 //                    Spacer(modifier = Modifier.height(20.dp))
                     Divider(modifier = Modifier.
                         padding(0.dp, 20.dp),
@@ -221,7 +194,7 @@ fun AssuranceFormScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = ("%.2f".format(tariffPrice.toDouble() * price.value.text.toDouble() / 100)).toString() + " lei",
+                            text = ("%.2f".format(tariffPrice.toDouble() * price.value.value.text.toDouble() / 100)).toString() + " lei",
                             modifier = Modifier
                                 .weight(1f)
                                 .wrapContentWidth(Alignment.Start),
@@ -230,25 +203,26 @@ fun AssuranceFormScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Button(
                             onClick = {
-                                if (firstName.value.text.isNotBlank() &&
-                                    lastName.value.text.isNotBlank() &&
-                                    IDNP.value.text.isNotBlank() &&
-                                    phone.value.text.isNotBlank() &&
+                                if (firstName.value.value.text.isNotBlank() &&
+                                    lastName.value.value.text.isNotBlank() &&
+                                    IDNP.value.value.text.isNotBlank() &&
+                                    phone.value.value.text.isNotBlank() &&
                                     (!showAdditionalPerson.value ||
-                                            (additionalFirstName.value.text.isNotBlank() &&
-                                                    additionalLastName.value.text.isNotBlank() &&
-                                                    additionalIDNP.value.text.isNotBlank())) &&
-                                    make.value.text.isNotBlank() &&
-                                    model.value.text.isNotBlank() &&
-                                    year.value.text.isNotBlank() &&
-                                    price.value.text.isNotBlank() &&
-                                    certificateNumber.value.text.isNotBlank() &&
-                                    registrationNumber.value.text.isNotBlank()) {
+                                            (additionalFirstName.value.value.text.isNotBlank() &&
+                                                    additionalLastName.value.value.text.isNotBlank() &&
+                                                    additionalIDNP.value.value.text.isNotBlank())) &&
+                                    make.value.value.text.isNotBlank() &&
+                                    model.value.value.text.isNotBlank() &&
+                                    year.value.value.text.isNotBlank() &&
+                                    price.value.value.text.isNotBlank() &&
+                                    certificateNumber.value.value.text.isNotBlank() &&
+                                    registrationNumber.value.value.text.isNotBlank()) {
 
                                     // Add your API request code here
 
                                     // Show confirmation dialog
                                     showConfirmDialog.value = true
+                                    openDialog.value = true
                                 }
                             },
                             shape = RoundedCornerShape(5.dp),
@@ -261,7 +235,30 @@ fun AssuranceFormScreen(
                     }
 
                     if (showConfirmDialog.value) {
-                        AlertDialog(
+                        ConfirmPurchaseDialog(
+                            openDialog = openDialog,
+                            onConfirm = {
+                                // Handle confirmation here
+                                openDialog.value = false
+                                showConfirmDialog.value = false
+                            },
+                            onDismiss = {
+                                // Handle dismissal here
+                                openDialog.value = false
+                                showConfirmDialog.value = false
+                            }
+                        )
+                    }
+                }
+
+            }
+            
+
+        }
+    }
+}
+
+/*                        AlertDialog(
                             onDismissRequest = {
                                 showConfirmDialog.value = false
                             },
@@ -276,36 +273,28 @@ fun AssuranceFormScreen(
                                     Text("OK")
                                 }
                             }
-                        )
-                    }
-                }
-
-            }
-            
-
-        }
-    }
-}
+                        )*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun personDetails(
-    firstName : MutableState<TextFieldValue>,
-    lastName : MutableState<TextFieldValue>,
-    phone : MutableState<TextFieldValue>,
-    IDNP : MutableState<TextFieldValue>,
-    aditionalFirstName: MutableState<TextFieldValue>,
-    aditionalLastName: MutableState<TextFieldValue>,
-    aditionalIDNP: MutableState<TextFieldValue>,
+    firstName : MutableState<FormFieldState>,
+    lastName : MutableState<FormFieldState>,
+    phone : MutableState<FormFieldState>,
+    IDNP : MutableState<FormFieldState>,
+    aditionalFirstName: MutableState<FormFieldState>,
+    aditionalLastName: MutableState<FormFieldState>,
+    aditionalIDNP: MutableState<FormFieldState>,
     showAdditionalPerson: MutableState<Boolean>
 ){
 
     CustomOutlinedTextField(
         value = firstName,
         label = "Prenume",
-        onValueChange = { firstName.value = it },
-        isError = firstName.value.text.isBlank(),
-        errorMessage = "This field cannot be empty"
+        onValueChange = { firstName.value = firstName.value.copy(value = it, touched = true) },
+        isError = firstName.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
 
     Spacer(modifier = Modifier.height(15.dp))
@@ -313,9 +302,10 @@ fun personDetails(
     CustomOutlinedTextField(
         value = lastName,
         label = "Nume",
-        onValueChange = { lastName.value = it },
-        isError = lastName.value.text.isBlank(),
-        errorMessage = "This field cannot be empty"
+        onValueChange = { lastName.value = lastName.value.copy(value = it, touched = true) },
+        isError = lastName.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
 
     Spacer(modifier = Modifier.height(15.dp))
@@ -323,9 +313,10 @@ fun personDetails(
     CustomOutlinedTextField(
         value = IDNP,
         label = "IDNO/IDNP",
-        onValueChange = { IDNP.value = it },
-        isError = IDNP.value.text.isBlank(),
-        errorMessage = "This field cannot be empty"
+        onValueChange = { IDNP.value = IDNP.value.copy(value = it, touched = true) },
+        isError = IDNP.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
 
     Spacer(modifier = Modifier.height(15.dp))
@@ -333,9 +324,10 @@ fun personDetails(
     CustomOutlinedTextField(
         value = phone,
         label = "Număr de telefon",
-        onValueChange = { phone.value = it },
-        isError = phone.value.text.isBlank(),
-        errorMessage = "This field cannot be empty"
+        onValueChange = { phone.value = phone.value.copy(value = it, touched = true) },
+        isError = phone.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
 
     Spacer(modifier = Modifier.height(15.dp))
@@ -348,94 +340,108 @@ fun personDetails(
         Spacer(modifier = Modifier.height(15.dp))
         TextField(
             label = { Text(text = "Prenume(șofer adițional)") },
-            value = aditionalFirstName.value,
-            onValueChange = { aditionalFirstName.value = it },
+            value = aditionalFirstName.value.value,
+            onValueChange = { aditionalFirstName.value = aditionalFirstName.value.copy(value = it, touched = true) },
         )
         Spacer(modifier = Modifier.height(15.dp))
         TextField(
             label = { Text(text = "Nume(șofer adițional)") },
-            value = aditionalLastName.value,
-            onValueChange = { aditionalLastName.value = it },
+            value = aditionalLastName.value.value,
+            onValueChange = { aditionalLastName.value = aditionalLastName.value.copy(value = it, touched = true) },
         )
         Spacer(modifier = Modifier.height(15.dp))
         TextField(
             label = { Text(text = "IDNO/IDNP(șofer adițional)") },
-            value = aditionalIDNP.value,
-            onValueChange = { aditionalIDNP.value = it },
-
+            value = aditionalIDNP.value.value,
+            onValueChange = { aditionalIDNP.value = aditionalIDNP.value.copy(value = it, touched = true) },
         )
-}
+    }
 
     Spacer(modifier = Modifier.height(15.dp))
 
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun vehicleDetails(
     type : MutableState<Int>,
-    make : MutableState<TextFieldValue>,
-    model : MutableState<TextFieldValue>,
-    year: MutableState<TextFieldValue>,
-    price: MutableState<TextFieldValue>,
+    make : MutableState<FormFieldState>,
+    model : MutableState<FormFieldState>,
+    year: MutableState<FormFieldState>,
+    price: MutableState<FormFieldState>,
     currency: MutableState<Int>,
-    certificateNumber : MutableState<TextFieldValue>,
-    registrationNumber: MutableState<TextFieldValue>,
+    certificateNumber : MutableState<FormFieldState>,
+    registrationNumber: MutableState<FormFieldState>,
 ){
 
     Spacer(modifier = Modifier.height(15.dp))
 
     dropDownMenu(getCarTypesList(), label = "Tipul vehicului", selectedIndex = type)
     Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(text = "Marca") },
-        value = make.value,
-        onValueChange = { make.value = it },
+    CustomOutlinedTextField(
+        value = make,
+        label = "Marca",
+        onValueChange = { make.value = make.value.copy(value = it, touched = true) },
+        isError = make.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
     Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(text = "Model") },
-        value = model.value,
-        onValueChange = { model.value = it },
+    CustomOutlinedTextField(
+        value = model,
+        label = "Model",
+        onValueChange = { model.value = model.value.copy(value = it, touched = true) },
+        isError = model.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
     Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        label = { Text(text = "Anul fabricației") },
-        value = year.value,
+    CustomOutlinedTextField(
+        value = year,
+        label = "Anul fabricației",
         onValueChange = {
             if (it.text.isFloat()) { // Check if the input is a valid float
-                year.value = it
+                year.value = year.value.copy(value = it, touched = true)
             }
         },
+        isError = year.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     )
-//    dropDownMenu(getCurrencyList(), label = "Model", selectedIndex = currency)
+    // ... rest o
+/*    dropDownMenu(getCurrencyList(), label = "Model", selectedIndex = currency)*/
     Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        label = { Text(text = "Prețul pe piață") },
-        value = price.value,
+    CustomOutlinedTextField(
+        value = price,
+        label = "Prețul pe piață",
         onValueChange = {
-            if (it.text.isFloat()|| it.text.isEmpty()) { // Check if the input is a valid float
-                price.value = it
+            if (it.text.isFloat() || it.text.isEmpty()) { // Check if the input is a valid float
+                price.value = price.value.copy(value = it, touched = true)
             }
         },
+        isError = price.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
     )
     Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        label = { Text(text = "Numărul certificatului de înmatriculare") },
-        value = certificateNumber.value,
-        onValueChange = { certificateNumber.value = it },
+    CustomOutlinedTextField(
+        value = certificateNumber,
+        label = "Numărul certificatului de înmatriculare",
+        onValueChange = { certificateNumber.value = certificateNumber.value.copy(value = it, touched = true) },
+        isError = certificateNumber.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
     )
     Spacer(modifier = Modifier.height(15.dp))
-    TextField(
-        label = { Text(text = "Număr de înregistrare") },
-        value = registrationNumber.value,
-        onValueChange = { registrationNumber.value = it },
-
-        )
+    CustomOutlinedTextField(
+        value = registrationNumber,
+        label = "Număr de înregistrare",
+        onValueChange = { registrationNumber.value = registrationNumber.value.copy(value = it, touched = true) },
+        isError = registrationNumber.value.error,
+        errorMessage = "Acest câmp nu poate fi lăsat liber!",
+        hasInteracted = remember { mutableStateOf(false) }
+    )
 }
 
 fun String.isFloat(): Boolean {
@@ -449,27 +455,28 @@ fun getCurrencyList(): ArrayList<String>{
     return arrayListOf("Lei", "Euro")
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomOutlinedTextField(
-    value: MutableState<TextFieldValue>,
+    value: MutableState<FormFieldState>,
     label: String,
     onValueChange: (TextFieldValue) -> Unit,
     isError: Boolean,
     errorMessage: String,
-    hasInteracted: MutableState<Boolean>
+    hasInteracted: MutableState<Boolean>,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     OutlinedTextField(
-        value = value.value,
+        value = value.value.value,
         onValueChange = {
-            onValueChange(it)
+            value.value = value.value.copy(value = it, touched = true)
             hasInteracted.value = true
+            onValueChange(it)  // Call the onValueChange function passed as a parameter
         },
         label = { Text(label) },
         isError = isError && hasInteracted.value,
         modifier = Modifier.fillMaxWidth(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             textColor = Color.Black,
             errorLabelColor = Color.Red,
@@ -482,8 +489,53 @@ fun CustomOutlinedTextField(
         Text(
             text = errorMessage,
             color = Color.Red,
-            style = MaterialTheme.typography.caption,
             modifier = Modifier.padding(start = 16.dp)
+        )
+    }
+}
+
+
+@Composable
+fun ConfirmPurchaseDialog(
+    openDialog: MutableState<Boolean>,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                // Dismiss the dialog when the user clicks outside the dialog or on the back button
+                // This may also be where you want to reset the state of the dialog to its initial state
+                onDismiss()
+            },
+            title = {
+                Text(text = "Confirm Purchase")
+            },
+            text = {
+                Text("Are you sure you want to buy this assurance?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        // Change the dialog state to close it
+                        // Perform any other actions when the user confirms
+                        onConfirm()
+                    }
+                ) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        // Change the dialog state to close it
+                        // Perform any other actions when the user dismisses
+                        onDismiss()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
         )
     }
 }

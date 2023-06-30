@@ -56,11 +56,9 @@ class InsuranceViewModel @Inject constructor(
             if (token != null) {
                 try {
                     val insurance = insuranceApi.saveInsurance("Bearer $token", insurance)
-                    Log.i("insurances", insurance.toString())
                     _postInsuranceResult.emit(insurance)
                 } catch (e: Exception) {
                     Log.i("insurance error", e.message.toString())
-//                    _postInsuranceResult.emit(Insurance(Vehicle(), ArrayList<Person>()))
                 }
             }
         }
