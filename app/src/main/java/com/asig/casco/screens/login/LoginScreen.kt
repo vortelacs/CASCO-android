@@ -33,7 +33,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
 @Composable
-@Destination(start = false)
+@Destination(start = true)
 fun LoginScreen(
     navigator: DestinationsNavigator
 ){

@@ -13,6 +13,7 @@ import com.asig.casco.security.UserDataStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class InsuranceViewModel @Inject constructor(
     private val retrofitFactory: RetrofitFactory,
-    private val tokenStorage :  UserDataStorage
+    private val userDataStorage :  UserDataStorage
     ) : ViewModel()
 {
 
@@ -33,12 +34,12 @@ class InsuranceViewModel @Inject constructor(
 
     fun getInsuranceByEmail(email : String){
          viewModelScope.launch {
-             val token = tokenStorage.getToken.firstOrNull()
+             val token = userDataStorage.getToken.firstOrNull()
              if (token != null) {
                  try {
                      val insurances = insuranceApi.getInsurancesByUserEmail("Bearer $token", EmailRequest(email))
                      Log.i("insurances", insurances.toString())
-                     _getInsurancesResult.emit(insurances ?: ArrayList())
+                     _getInsurancesResult.emit(insurances)
                  } catch (e: Exception) {
                      Log.i("insurance error", e.message.toString())
                      _getInsurancesResult.emit(ArrayList())
@@ -50,13 +51,14 @@ class InsuranceViewModel @Inject constructor(
     private val _postInsuranceResult = MutableStateFlow<Insurance>(Insurance(Vehicle(), ArrayList<Person>()))
     val postInsuranceResult: StateFlow<Insurance> = _postInsuranceResult
 
-    fun saveInsurance(insurance : Insurance){
+    fun saveInsurance(insuranceData: Insurance) {
         viewModelScope.launch {
-            val token = tokenStorage.getToken.firstOrNull()
+            val token = userDataStorage.getToken.firstOrNull()
+            insuranceData.user = userDataStorage.getEmail.first().toString()
             if (token != null) {
                 try {
-                    val insurance = insuranceApi.saveInsurance("Bearer $token", insurance)
-                    _postInsuranceResult.emit(insurance)
+                    val savedInsurance = insuranceApi.saveInsurance("Bearer $token", insuranceData)
+                    _postInsuranceResult.emit(savedInsurance)
                 } catch (e: Exception) {
                     Log.i("insurance error", e.message.toString())
                 }

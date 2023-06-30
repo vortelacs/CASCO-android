@@ -4,6 +4,5 @@ data class Person (
     val firstName: String = "",
     val lastName: String = "",
     val idnp: String = "",
-    val phone: String = "",
-    val email: String = ""
+    val phone: String = ""
 )

@@ -1,5 +1,6 @@
 package com.asig.casco.model
 
+
 data class Insurance(
     var vehicle : Vehicle,
     var persons : List<Person>,
@@ -9,5 +10,6 @@ data class Insurance(
     var countryBlock : String = "",
     var effectiveDate : String = "",
     var expireDate : String = "",
-
+    var price : Float = 0F,
+    var user : String = "",
 )

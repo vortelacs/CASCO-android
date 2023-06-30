@@ -1,5 +1,8 @@
 package com.asig.casco.screens.assurance
 
+import android.content.Context
+import android.widget.CalendarView
+import android.widget.DatePicker
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +19,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -28,27 +30,34 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.asig.casco.api.build.RetrofitFactory
 import com.asig.casco.api.interfaces.TariffApi
 import com.asig.casco.api.viewmodel.InsuranceViewModel
 import com.asig.casco.api.viewmodel.TariffViewModel
 import com.asig.casco.model.FormFieldState
+import com.asig.casco.model.Insurance
+import com.asig.casco.model.Person
 import com.asig.casco.model.Tariff
+import com.asig.casco.model.Vehicle
 import com.asig.casco.screens.common.checkBox
 import com.asig.casco.screens.common.dropDownMenu
+import com.asig.casco.screens.destinations.PaymentScreenDestination
 import com.asig.casco.screens.skeleton.ScaffoldSkeleton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Destination(start = false)
@@ -56,23 +65,16 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 fun AssuranceFormScreen(
     navigator: DestinationsNavigator
 ) {
-
+    val context = LocalContext.current
     val tariffViewModel : TariffViewModel = hiltViewModel()
     val insuranceViewModel : InsuranceViewModel = hiltViewModel()
     var tariff : Tariff
 
     val tariffPrice by tariffViewModel.getTariffResult.collectAsState(initial = 0)
-/*
-    LaunchedEffect(key1 = tariffViewModel) {
-        tariffViewModel.getTariffResult.collect { tariffResult ->
-            if(tariffPrice != -1)
-        }
-    }*/
 
     LaunchedEffect(key1 = "loadInsurances") {
         insuranceViewModel.getInsuranceByEmail("johndoy1@mail.ru")
     }
-
 
     val retrofitTariff = RetrofitFactory().getRetrofitInstance()
     retrofitTariff.create(TariffApi::class.java)
@@ -84,12 +86,15 @@ fun AssuranceFormScreen(
     val additionalIDNP = remember { mutableStateOf(FormFieldState()) }
     val additionalFirstName = remember { mutableStateOf(FormFieldState()) }
     val additionalLastName = remember { mutableStateOf(FormFieldState()) }
+    val additionalPhone = remember { mutableStateOf(FormFieldState()) }
     val model = remember { mutableStateOf(FormFieldState()) }
     val make = remember { mutableStateOf(FormFieldState()) }
     val year = remember { mutableStateOf(FormFieldState()) }
     val price = remember { mutableStateOf(FormFieldState()) }
     val certificateNumber = remember { mutableStateOf(FormFieldState()) }
     val registrationNumber = remember { mutableStateOf(FormFieldState()) }
+    val startDay = remember { mutableStateOf(LocalDate.now()) }
+    val endDay = remember { mutableStateOf(startDay.value.plusYears(1))}
 
     val screenNumber = remember {
         mutableStateOf(1)
@@ -137,7 +142,7 @@ fun AssuranceFormScreen(
                     }
                 }
             }else {
-                vehicleDetails(selectedType, make, model, year, price, selectedCurrency, certificateNumber, registrationNumber)
+                vehicleDetails(context, selectedType, make, model, year, price, selectedCurrency, certificateNumber, registrationNumber, endDay)
                 Spacer(modifier = Modifier.height(15.dp))
                 checkBox("Accept termenii si conditiile", acceptDataProcessing)
                 checkBox("Accept prelucrarea datelor cu caracter personal", acceptTerms)
@@ -218,11 +223,48 @@ fun AssuranceFormScreen(
                                     certificateNumber.value.value.text.isNotBlank() &&
                                     registrationNumber.value.value.text.isNotBlank()) {
 
+                                    var vehicle = Vehicle(getCarTypesList()[selectedType.value],
+                                    model.value.value.text,
+                                    make.value.value.text,
+                                    year.value.value.text.toInt(),
+                                    price.value.value.text.toFloat(),
+                                    certificateNumber.value.value.text,
+                                    registrationNumber.value.value.text)
+
+                                    var persons = ArrayList<Person>()
+
+                                    var person = Person (firstName.value.value.text,
+                                        lastName.value.value.text,
+                                        IDNP.value.value.text,
+                                        phone.value.value.text
+                                    )
+                                    persons.add(person)
+
+                                    if(showAdditionalPerson.value){
+                                        var person1 = Person (additionalFirstName.value.value.text,
+                                            additionalLastName.value.value.text,
+                                            additionalIDNP.value.value.text,
+                                            additionalPhone.value.value.text
+                                        )
+                                        persons.add(person1)
+                                    }
+
+                                    var insurance = Insurance(vehicle,
+                                        persons,
+                                        "casco",
+                                        "%.2f".format(tariffPrice.toDouble() * price.value.value.text.toDouble() / 100).toString(),
+                                        "moldasig",
+                                        "DEFAULT",
+                                        startDay.value.format(DateTimeFormatter.ISO_DATE),
+                                        endDay.value.format(DateTimeFormatter.ISO_DATE),
+                                        tariffPrice.toFloat() * price.value.value.text.toFloat() / 100
+                                    )
+                                    insuranceViewModel.saveInsurance(insurance)
                                     // Add your API request code here
 
                                     // Show confirmation dialog
-                                    showConfirmDialog.value = true
-                                    openDialog.value = true
+/*                                    showConfirmDialog.value = true
+                                    openDialog.value = true*/
                                 }
                             },
                             shape = RoundedCornerShape(5.dp),
@@ -232,23 +274,25 @@ fun AssuranceFormScreen(
                         ) {
                             Text(text = "Procură")
                         }
+                        if (showConfirmDialog.value) {
+                            ConfirmPurchaseDialog(
+                                openDialog = openDialog,
+                                onConfirm = {
+                                    // Handle confirmation here
+                                    openDialog.value = false
+                                    showConfirmDialog.value = false
+
+
+                                },
+                                onDismiss = {
+                                    // Handle dismissal here
+                                    openDialog.value = false
+                                    showConfirmDialog.value = false
+                                }
+                            )
+                        }
                     }
 
-                    if (showConfirmDialog.value) {
-                        ConfirmPurchaseDialog(
-                            openDialog = openDialog,
-                            onConfirm = {
-                                // Handle confirmation here
-                                openDialog.value = false
-                                showConfirmDialog.value = false
-                            },
-                            onDismiss = {
-                                // Handle dismissal here
-                                openDialog.value = false
-                                showConfirmDialog.value = false
-                            }
-                        )
-                    }
                 }
 
             }
@@ -257,23 +301,6 @@ fun AssuranceFormScreen(
         }
     }
 }
-
-/*                        AlertDialog(
-                            onDismissRequest = {
-                                showConfirmDialog.value = false
-                            },
-                            title = { Text(text = "Confirmation") },
-                            text = { Text("Your request has been sent.") },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        showConfirmDialog.value = false
-                                    }
-                                ) {
-                                    Text("OK")
-                                }
-                            }
-                        )*/
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -363,15 +390,18 @@ fun personDetails(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun vehicleDetails(
-    type : MutableState<Int>,
-    make : MutableState<FormFieldState>,
-    model : MutableState<FormFieldState>,
+    context: Context,
+    type: MutableState<Int>,
+    make: MutableState<FormFieldState>,
+    model: MutableState<FormFieldState>,
     year: MutableState<FormFieldState>,
     price: MutableState<FormFieldState>,
     currency: MutableState<Int>,
-    certificateNumber : MutableState<FormFieldState>,
+    certificateNumber: MutableState<FormFieldState>,
     registrationNumber: MutableState<FormFieldState>,
-){
+    selectedEndDay: MutableState<LocalDate>,
+
+    ){
 
     Spacer(modifier = Modifier.height(15.dp))
 
@@ -442,6 +472,8 @@ fun vehicleDetails(
         errorMessage = "Acest câmp nu poate fi lăsat liber!",
         hasInteracted = remember { mutableStateOf(false) }
     )
+    Spacer(modifier = Modifier.height(15.dp))
+//    CustomDatePicker(selectedEndDay, "Alegeți ultima zi a asigurării")
 }
 
 fun String.isFloat(): Boolean {

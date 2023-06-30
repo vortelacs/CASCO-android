@@ -11,15 +11,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.asig.casco.model.Insurance
 import com.asig.casco.screens.payment.components.AmountEnterCard
 import com.asig.casco.screens.payment.components.CustomizedButton
 import com.asig.casco.screens.payment.components.HeaderCircles
 import com.asig.casco.screens.payment.components.WalletAmount
 
 
-@Destination(start = true)
+@Destination(start = false)
 @Composable
-fun PaymentScreen(navigator: DestinationsNavigator) {
+fun PaymentScreen(navigator: DestinationsNavigator,
+                  insurance : Insurance,
+                  price : Float
+) {
     Column(
         Modifier
             .fillMaxSize()

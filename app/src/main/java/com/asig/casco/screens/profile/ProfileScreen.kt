@@ -248,8 +248,6 @@ fun ExpandableInsuranceCard(
                             TextWithLabel("IDNP", person.idnp)
                             Spacer(modifier = Modifier.height(4.dp))
                             TextWithLabel("Phone", person.phone)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Email", person.email)
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
