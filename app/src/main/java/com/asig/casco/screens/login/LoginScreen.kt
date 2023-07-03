@@ -24,9 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.*
 import com.asig.casco.screens.destinations.HomeScreenDestination
-import com.asig.casco.screens.destinations.ProfileScreenDestination
 import com.asig.casco.screens.destinations.SignUpDestination
-import com.asig.casco.security.UserDataStorage
 import com.asig.casco.security.AuthViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -50,8 +48,8 @@ fun LoginScreen(
         authViewModel.loginResult.collect { loginResult ->
             if (loginResult) {
                 navigator.navigate(HomeScreenDestination)
-            } else if (!loginResult && loginAttempted) {
-                Toast.makeText(context, "Problems with connection", Toast.LENGTH_LONG).show()
+            } else if (loginAttempted) {
+                Toast.makeText(context, "Probleme cu conexiunea", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -133,7 +131,7 @@ fun LoginScreen(
             ) {
                 Text(text = "Nu ai cont? Crează unul aici",
                     style = TextStyle(
-                        fontSize = 17.sp
+                        fontSize = 15.sp
                     ))
             }
         }

@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.asig.casco.api.utils.NetworkConnectionInterceptor
+import com.asig.casco.model.SignUpRequest
 import com.asig.casco.model.Token
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,6 +76,35 @@ class AuthViewModel(
         }
 
         return result
+    }
+
+    private val _signUpResult = MutableStateFlow<Boolean>(false)
+    val signUpResult: StateFlow<Boolean> = _signUpResult
+
+    private val _signUpAttempted = MutableStateFlow<Boolean>(false)
+    val signUpAttempted: StateFlow<Boolean> = _signUpAttempted
+
+
+    fun signUp(request : SignUpRequest)  {
+        //TODO check internet connection
+        networkConnectionInterceptor.isNetworkAvailable()
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val token = authService.sendSignUpRequest(request)
+                    if (token != null) {
+                        userDataStorage.saveToken(token.token)
+                        userDataStorage.saveEmail(request.email)
+                    }
+                    _signUpResult.emit(true)
+                    _signUpAttempted.emit(true)
+                } catch (e: Exception) {
+                    _signUpResult.emit(false)
+                }
+            }
+        }
+
     }
 
 }

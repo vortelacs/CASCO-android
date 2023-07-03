@@ -1,11 +1,9 @@
 package com.asig.casco.security
 
+import com.asig.casco.model.SignUpRequest
 import com.asig.casco.model.Token
 import com.asig.casco.model.User
-import retrofit2.Call
-import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthApi{
@@ -15,4 +13,7 @@ interface AuthApi{
 
     @POST("johnauth/validateToken")
     suspend fun checkToken(@Body token : String = ""): Boolean
+
+    @POST("auth/signup")
+    suspend fun signUp(@Body request : SignUpRequest): Token
 }
