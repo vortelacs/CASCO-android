@@ -1,8 +1,5 @@
-package com.asig.casco.screens.assurance
+package com.asig.casco.screens.insurance
 
-import android.content.Context
-import android.widget.CalendarView
-import android.widget.DatePicker
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,13 +30,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.asig.casco.api.build.RetrofitFactory
 import com.asig.casco.api.interfaces.TariffApi
@@ -52,7 +46,6 @@ import com.asig.casco.model.Tariff
 import com.asig.casco.model.Vehicle
 import com.asig.casco.screens.common.checkBox
 import com.asig.casco.screens.common.dropDownMenu
-import com.asig.casco.screens.destinations.PaymentScreenDestination
 import com.asig.casco.screens.skeleton.ScaffoldSkeleton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -62,10 +55,10 @@ import java.time.format.DateTimeFormatter
 
 @Destination(start = false)
 @Composable
-fun AssuranceFormScreen(
+fun InsuranceFormScreen(
     navigator: DestinationsNavigator
 ) {
-    val context = LocalContext.current
+
     val tariffViewModel : TariffViewModel = hiltViewModel()
     val insuranceViewModel : InsuranceViewModel = hiltViewModel()
     var tariff : Tariff
@@ -100,9 +93,6 @@ fun AssuranceFormScreen(
         mutableStateOf(1)
     }
 
-    val selectedCurrency = remember {
-        mutableStateOf(0)
-    }
     val openDialog = remember { mutableStateOf(false) }
     val showConfirmDialog = remember { mutableStateOf(false) }
 
@@ -126,7 +116,7 @@ fun AssuranceFormScreen(
             Spacer(modifier = Modifier.height(15.dp))
 
             if(screenNumber.value == 1) {
-                personDetails(firstName, lastName, phone, IDNP, additionalFirstName, additionalLastName,additionalIDNP, showAdditionalPerson)
+                PersonDetails(firstName, lastName, phone, IDNP, additionalFirstName, additionalLastName,additionalIDNP, showAdditionalPerson)
                 Spacer(modifier = Modifier.height(15.dp))
                 Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
                     Button(
@@ -142,7 +132,7 @@ fun AssuranceFormScreen(
                     }
                 }
             }else {
-                vehicleDetails(context, selectedType, make, model, year, price, selectedCurrency, certificateNumber, registrationNumber, endDay)
+                VehicleDetails(selectedType, make, model, year, price, certificateNumber, registrationNumber)
                 Spacer(modifier = Modifier.height(15.dp))
                 checkBox("Accept termenii si conditiile", acceptDataProcessing)
                 checkBox("Accept prelucrarea datelor cu caracter personal", acceptTerms)
@@ -189,7 +179,6 @@ fun AssuranceFormScreen(
                     }
                 }
                 if(tariffPrice != 0 && price.value.value.text.isNotBlank()) {
-//                    Spacer(modifier = Modifier.height(20.dp))
                     Divider(modifier = Modifier.
                         padding(0.dp, 20.dp),
                         color = Color.Gray, thickness = 1.dp)
@@ -199,7 +188,7 @@ fun AssuranceFormScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = ("%.2f".format(tariffPrice.toDouble() * price.value.value.text.toDouble() / 100)).toString() + " lei",
+                            text = ("%.2f".format(tariffPrice.toDouble() * price.value.value.text.toDouble() / 100)) + " lei",
                             modifier = Modifier
                                 .weight(1f)
                                 .wrapContentWidth(Alignment.Start),
@@ -223,7 +212,7 @@ fun AssuranceFormScreen(
                                     certificateNumber.value.value.text.isNotBlank() &&
                                     registrationNumber.value.value.text.isNotBlank()) {
 
-                                    var vehicle = Vehicle(getCarTypesList()[selectedType.value],
+                                    val vehicle = Vehicle(getCarTypesList()[selectedType.value],
                                     model.value.value.text,
                                     make.value.value.text,
                                     year.value.value.text.toInt(),
@@ -231,9 +220,9 @@ fun AssuranceFormScreen(
                                     certificateNumber.value.value.text,
                                     registrationNumber.value.value.text)
 
-                                    var persons = ArrayList<Person>()
+                                    val persons = ArrayList<Person>()
 
-                                    var person = Person (firstName.value.value.text,
+                                    val person = Person (firstName.value.value.text,
                                         lastName.value.value.text,
                                         IDNP.value.value.text,
                                         phone.value.value.text
@@ -241,7 +230,7 @@ fun AssuranceFormScreen(
                                     persons.add(person)
 
                                     if(showAdditionalPerson.value){
-                                        var person1 = Person (additionalFirstName.value.value.text,
+                                        val person1 = Person (additionalFirstName.value.value.text,
                                             additionalLastName.value.value.text,
                                             additionalIDNP.value.value.text,
                                             additionalPhone.value.value.text
@@ -249,10 +238,10 @@ fun AssuranceFormScreen(
                                         persons.add(person1)
                                     }
 
-                                    var insurance = Insurance(vehicle,
+                                    val insurance = Insurance(vehicle,
                                         persons,
                                         "casco",
-                                        "%.2f".format(tariffPrice.toDouble() * price.value.value.text.toDouble() / 100).toString(),
+                                        "%.2f".format(tariffPrice.toDouble() * price.value.value.text.toDouble() / 100),
                                         "moldasig",
                                         "DEFAULT",
                                         startDay.value.format(DateTimeFormatter.ISO_DATE),
@@ -304,7 +293,7 @@ fun AssuranceFormScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun personDetails(
+fun PersonDetails(
     firstName : MutableState<FormFieldState>,
     lastName : MutableState<FormFieldState>,
     phone : MutableState<FormFieldState>,
@@ -387,20 +376,15 @@ fun personDetails(
     Spacer(modifier = Modifier.height(15.dp))
 
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun vehicleDetails(
-    context: Context,
+fun VehicleDetails(
     type: MutableState<Int>,
     make: MutableState<FormFieldState>,
     model: MutableState<FormFieldState>,
     year: MutableState<FormFieldState>,
     price: MutableState<FormFieldState>,
-    currency: MutableState<Int>,
     certificateNumber: MutableState<FormFieldState>,
-    registrationNumber: MutableState<FormFieldState>,
-    selectedEndDay: MutableState<LocalDate>,
-
+    registrationNumber: MutableState<FormFieldState>
     ){
 
     Spacer(modifier = Modifier.height(15.dp))
@@ -482,9 +466,6 @@ fun String.isFloat(): Boolean {
 
 fun getCarTypesList(): ArrayList<String>{
     return arrayListOf("Autoturism", "Autobuz", "Autocamion, camion pentru semiremorca", "Vehicul agricol", "Troleibuz", "Remorcă / semiremorcă", "Utilaj suplimentar pentru vehicule")
-}
-fun getCurrencyList(): ArrayList<String>{
-    return arrayListOf("Lei", "Euro")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

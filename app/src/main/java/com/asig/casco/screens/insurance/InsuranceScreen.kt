@@ -1,7 +1,7 @@
-package com.asig.casco.screens.assurance
+package com.asig.casco.screens.insurance
 
 import androidx.compose.foundation.clickable
-import com.asig.casco.screens.destinations.AssuranceFormScreenDestination
+import com.asig.casco.screens.destinations.InsuranceFormScreenDestination
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,13 +19,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Destination(start = false)
 @Composable
-fun AssuranceScreen(
+fun InsuranceScreen(
     navigator: DestinationsNavigator
 ){
 
 ScaffoldSkeleton(navigator = navigator, titleBar = "Asigurare noua") {
-
-    val modifier : Modifier
 
     Column(
         verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -36,21 +34,21 @@ ScaffoldSkeleton(navigator = navigator, titleBar = "Asigurare noua") {
             title = "Casco",
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { navigator.navigate(AssuranceFormScreenDestination) }
+                .clickable { navigator.navigate(InsuranceFormScreenDestination) }
         )
         ImageCard(painter = painterResource(R.drawable.rca),
             contentDescription = "RCA",
             title = "RCA",
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { navigator.navigate(AssuranceFormScreenDestination) }
+                .clickable { navigator.navigate(InsuranceFormScreenDestination) }
         )
         ImageCard(painter = painterResource(R.drawable.carte_verde),
             contentDescription = "Carte Verde",
             title = "Carte Verde",
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { navigator.navigate(AssuranceFormScreenDestination) }
+                .clickable { navigator.navigate(InsuranceFormScreenDestination) }
         )
     }
 

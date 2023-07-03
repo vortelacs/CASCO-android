@@ -36,7 +36,7 @@ class PartnerViewModel @Inject constructor(
                 try {
                     val partnerList = partnerService.getAllPartners("Bearer $token")
                     Log.i("partner", partnerList.toString())
-                    _partnerResult.emit(partnerList ?: ArrayList())
+                    _partnerResult.emit(partnerList)
                 } catch (e: Exception) {
                     Log.i("partner error", e.message.toString())
                     _partnerResult.emit(ArrayList())

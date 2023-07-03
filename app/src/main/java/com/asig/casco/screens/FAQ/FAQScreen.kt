@@ -71,7 +71,7 @@ fun FAQScreen (
 ){
     ScaffoldSkeleton(navigator = navigator, titleBar = "Întrebări frecvente") {
         Column {
-            MainFAQToolbar()
+            Spacer(Modifier.height(16.dp))
             FAQSection()
         }
 
@@ -88,7 +88,7 @@ fun BottomText() {
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier.padding(20.dp)
     ){
-        Text(text = "Can't find an answer to your questions? Feel free to contact us at help@abcd.com",
+        Text(text = "Dacă nu puteți găsi răspuns la întrebarea voastră puteți să ne contactați pe pagina de contact",
             fontSize = 12.sp,
         )
     }
@@ -99,19 +99,24 @@ fun BottomText() {
 fun FAQSection() {
     Column() {
         ExpandableFAQCard(
-                "What is Malware ?", "Malware is intrusive software that is " +
-        "designed to damage and destroy computers and computer systems. " +
+                "Ce tipuri de asigurări sunt suportate de aplicația dvs.?", "Răspuns: Aplicația noastră suportă gestionarea de diverse tipuri de asigurări auto, inclusiv Casco, RCA și Green Card." +
                 "Malware is a contraction for “malicious software" +
                 "."
         )
         ExpandableFAQCard(
-            "How do I contact customer service ?", "You may write us at abcd@ab.com" +
-                    " with your query/concern and we'll get back to you as soon as possible."
+            "Pot utiliza aplicația dvs. pentru a cumpăra o nouă poliță de asigurare?", "Răspuns: Da, puteți utiliza aplicația noastră pentru a cumpăra o nouă poliță de asigurare de la una dintre companiile noastre partenere."
         )
         ExpandableFAQCard(
-            "What will be the duration of the service ?",
-            "The members can be admitted under the policy at well defined date for full " +
-                    "Cover term (1 Year) from their scheme joining date."
+            "Ce se întâmplă când polița mea de asigurare este pe cale să expire?",
+            "Răspuns: Aplicația noastră vă trimite o notificare cu 30 de zile înainte de expirarea poliței de asigurare pentru a vă reaminti să o reînnoiți."
+        )
+        ExpandableFAQCard(
+            "Ce fac dacă întâmpin probleme la utilizarea aplicației",
+            "Răspuns: Dacă întâmpinați probleme în timp ce utilizați aplicația noastră, ne puteți contacta prin secțiunea \"Contact\" din aplicație sau ne puteți trimite un e-mail la adresa de suport."
+        )
+        ExpandableFAQCard(
+            "Cât de sigure sunt datele mele în aplicația dvs.?",
+            "Răspuns: Noi punem mare preț pe securitatea datelor dvs. Toate datele sunt criptate și stocate în siguranță."
         )
     }
 }
@@ -185,73 +190,3 @@ fun ExpandableFAQCard(title: String, description: String) {
 
     }
 }
-
-@Composable
-fun MainFAQToolbar() {
-
-
-    Text(
-        text = "Frequently Asked Questions",
-        fontSize = 20.sp,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.Top)
-            .padding( vertical = 30.dp)
-    )
-
-
-}
-
-
-/*
-@Composable
-fun dropdownInfo(
-    enabled: Boolean = true,
-    label: String
-){
-    var expanded by remember { mutableStateOf(false) }
-    var textFieldSize by remember { mutableStateOf(Size.Zero) }
-    val icon = if (expanded)
-        Icons.Filled.KeyboardArrowUp
-    else
-        Icons.Filled.KeyboardArrowDown
-
-
-    Column() {
-        Box(modifier = Modifier.height(IntrinsicSize.Min)) {
-            OutlinedTextField(
-                value = "selectedText",
-                readOnly = true,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                label = { Text("label") },
-                trailingIcon = {
-                    Icon(icon, "contentDescription",
-                        Modifier.clickable { expanded = !expanded })
-                }
-            )
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 8.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .clickable(enabled = enabled) { expanded = true },
-                color = Color.Transparent,
-            ) {}
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            properties = PopupProperties(focusable = true),
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { textFieldSize.width.toDp() })
-        ) {
-
-            }
-
-        }
-    }
-*/
-

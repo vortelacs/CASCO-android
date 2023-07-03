@@ -1,5 +1,11 @@
 package com.asig.casco.screens.profile
 
+import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -14,9 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.IconButton
@@ -24,6 +27,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +46,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -50,13 +55,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.asig.casco.R
 import com.asig.casco.api.viewmodel.InsuranceViewModel
+import com.asig.casco.api.viewmodel.PDFViewModel
 import com.asig.casco.model.Insurance
-import com.asig.casco.model.Person
-import com.asig.casco.model.Vehicle
 import com.asig.casco.screens.skeleton.ScaffoldSkeleton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -68,18 +71,6 @@ fun ProfileScreen(
 
     val insuranceViewModel : InsuranceViewModel = hiltViewModel()
 
-/*
-    val insurances = ArrayList<Insurance> ( )
-
-    val persons = listOf(
-        Person("John", "Doe", "123456", "1234567890", "john.doe@example.com"),
-        Person("Jane", "Doe", "234567", "0987654321", "jane.doe@example.com")
-    )
-
-    insurances.add(Insurance(Vehicle("asd",    "asdas",   "asdas", 0, 1.0f, "asdasd", "asdasd"),  persons,   "asdasf",    "af",   "sf",   "sfa",   "asdx",   "afs",))
-    insurances.add(Insurance(Vehicle("asd",    "asdas",   "asdas", 0, 1.0f, "asdasd", "asdasd"),  persons,   "asdasf",    "af",   "sf",   "sfa",   "asdx",   "afs",))
-    insurances.add(Insurance(Vehicle("asd",    "asdas",   "asdas", 0, 1.0f, "asdasd", "asdasd"),  persons,   "asdasf",    "af",   "sf",   "sfa",   "asdx",   "afs",))
-*/
 
     val insurances by insuranceViewModel.getInsurancesResult.collectAsState(initial = ArrayList())
     LaunchedEffect(key1 = "loadInsurances") {
@@ -95,12 +86,13 @@ fun ProfileScreen(
             Image(
                 painter = painterResource(R.drawable.profile_blank),
                 contentDescription = "avatar",
-                contentScale = ContentScale.Crop,            // crop the image if it's not a square
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(96.dp)
-                    .clip(CircleShape)                       // clip to the circle shape
-                    .border(2.dp, Color.Gray, CircleShape)   // add a border (optional)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape)
             )
+            Spacer(modifier = Modifier.height(45.dp))
             Text(
                 text = "user.fullName",
                 fontSize = 18.sp,
@@ -117,149 +109,145 @@ fun ProfileScreen(
     }
 }
 
-@Composable
-fun InsuranceItem(insurance: Insurance) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Insurance Type: ${insurance.insuranceType}")
-            Text(text = "Price: ${insurance.insurer}")
-            // Add more fields as needed
-        }
-    }
-}
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterialApi
 @Composable
 fun ExpandableInsuranceCard(
-    /*content: @Composable() () -> Unit*/
     insurance : Insurance
 ) {
+    val pdfViewModel : PDFViewModel = hiltViewModel()
+
     var expandedState by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 19.dp)
-            .animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 400,
-                    easing = LinearOutSlowInEasing
-                )
-            ),
-        onClick = {
-            expandedState = !expandedState
-        },
-    ) {
-
-        Column(
+    Column {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 15.dp, vertical = 0.dp)
+                .padding(top = 19.dp)
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 400,
+                        easing = LinearOutSlowInEasing
+                    )
+                ),
+            onClick = {
+                expandedState = !expandedState
+            },
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = insurance.insuranceType,
-                    modifier = Modifier.weight(6f),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines =if(!expandedState) 1 else 3,
-                    overflow =if(!expandedState) TextOverflow.Ellipsis else TextOverflow.Visible,
-                )
-                IconButton(
-                    onClick = { expandedState = !expandedState },
-                    modifier = Modifier
-                        .weight(1f)
-                        .alpha(.5f),
-                ) {
-                    if (expandedState)
-                        Icon(
-                            imageVector = Icons.Default.Close, contentDescription = "",
-                            modifier = Modifier.size(20.dp),
-                        )
-                    else
-                        Icon(
-                            imageVector = Icons.Default.Add, contentDescription = "",
-                            modifier = Modifier.size(20.dp),
-                        )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp, vertical = 0.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = insurance.insuranceType,
+                        modifier = Modifier.weight(6f),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = if (!expandedState) 1 else 3,
+                        overflow = if (!expandedState) TextOverflow.Ellipsis else TextOverflow.Visible,
+                    )
+                    IconButton(
+                        onClick = { expandedState = !expandedState },
+                        modifier = Modifier
+                            .weight(1f)
+                            .alpha(.5f),
+                    ) {
+                        if (expandedState)
+                            Icon(
+                                imageVector = Icons.Default.Close, contentDescription = "",
+                                modifier = Modifier.size(20.dp),
+                            )
+                        else
+                            Icon(
+                                imageVector = Icons.Default.Add, contentDescription = "",
+                                modifier = Modifier.size(20.dp),
+                            )
 
 
+                    }
                 }
-            }
 
-            if (expandedState) {
-                Column(
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                ) {
-                    Card(
+                if (expandedState) {
+                    Column(
+                        verticalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 10.dp),
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 2.dp)
+                            .padding(bottom = 10.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 10.dp),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 2.dp
+                            )
                         ) {
-                            TextWithLabel("Type", insurance.vehicle.type)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Model", insurance.vehicle.model)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Make", insurance.vehicle.make)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Year", insurance.vehicle.year.toString())
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Car Price", insurance.vehicle.carPrice.toString())
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Certificate Number", insurance.vehicle.certificateNumber)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Registration Number", insurance.vehicle.registrationNumber)
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                TextWithLabel("Model", insurance.vehicle.model)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                TextWithLabel("Marca", insurance.vehicle.make)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                TextWithLabel("An", insurance.vehicle.year.toString())
+                                Spacer(modifier = Modifier.height(4.dp))
+                                TextWithLabel("Preț vehicul", insurance.vehicle.carPrice.toString())
+                                Spacer(modifier = Modifier.height(4.dp))
+                                TextWithLabel(
+                                    "Nr. certificatului",
+                                    insurance.vehicle.certificateNumber
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                TextWithLabel(
+                                    "Nr. de înregistrare",
+                                    insurance.vehicle.registrationNumber
+                                )
+                            }
                         }
-                    }
 
 
 
-                insurance.persons.forEach { person ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 2.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            TextWithLabel("First Name", person.firstName)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Last Name", person.lastName)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("IDNP", person.idnp)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            TextWithLabel("Phone", person.phone)
+                        insurance.persons.forEach { person ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                elevation = CardDefaults.cardElevation(
+                                    defaultElevation = 2.dp
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    TextWithLabel("Prenume", person.firstName)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    TextWithLabel("Nume", person.lastName)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    TextWithLabel("IDNP", person.idnp)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    TextWithLabel("Telefon", person.phone)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
+
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    LaunchedEffect(key1 = "loadpdf") {
+                        pdfViewModel.getPDF(insurance.effectiveDate, insurance.price)
+                    }
+                    DownloadPdfButton(pdfViewModel.pdfResult.value)
+                    Spacer(modifier = Modifier.height(4.dp))
 
                 }
+            }
 
-            }
-            }
 
         }
-
+    }
 }
 
 
@@ -278,5 +266,24 @@ fun TextWithLabel(fieldName: String, fieldValue: String) {
             text = fieldValue,
             fontSize = 16.sp
         )
+    }
+}
+
+@Composable
+fun DownloadPdfButton(pdfUrl: String) {
+    val context = LocalContext.current
+    Column(modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.End){
+    Button(onClick = {
+        val request = DownloadManager.Request(Uri.parse(pdfUrl))
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, Uri.parse(pdfUrl).lastPathSegment)
+
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        downloadManager.enqueue(request)
+        Toast.makeText(context, "Se descarcă...", Toast.LENGTH_SHORT).show()
+    }) {
+        Text("Descarcă pdf")
+    }
     }
 }

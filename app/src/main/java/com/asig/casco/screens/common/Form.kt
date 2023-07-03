@@ -1,5 +1,6 @@
 package com.asig.casco.screens.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -147,4 +150,23 @@ fun checkBox(
             text = label
         )
     }
+}
+
+@Composable
+fun SimplePopup(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Succes") },
+        text = { Text(message) },
+        confirmButton = {
+            Button(modifier = Modifier
+                .background(color = Color.Green),
+                onClick = { onDismiss() }) {
+                Text("OK")
+            }
+        }
+    )
 }

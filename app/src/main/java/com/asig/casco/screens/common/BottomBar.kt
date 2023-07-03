@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.asig.casco.R
-import com.asig.casco.screens.destinations.AssuranceScreenDestination
+import com.asig.casco.screens.destinations.InsuranceScreenDestination
 import com.asig.casco.screens.destinations.HomeScreenDestination
 import com.asig.casco.screens.destinations.ProfileScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -44,7 +44,7 @@ enum class BottomBarDestination(
     @StringRes val label: Int
 ) {
     Home(HomeScreenDestination, Icons.Default.Home, R.string.home_screen),
-    Assurance(AssuranceScreenDestination, Icons.Default.List , R.string.assurance_buy_screen),
+    Assurance(InsuranceScreenDestination, Icons.Default.List , R.string.assurance_buy_screen),
     Profile(ProfileScreenDestination, Icons.Default.Person, R.string.profile_screen)
 
 }

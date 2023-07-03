@@ -4,10 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.asig.casco.api.build.RetrofitFactory
-import com.asig.casco.api.interfaces.InsuranceApi
 import com.asig.casco.api.interfaces.NewsApi
-import com.asig.casco.model.EmailRequest
-import com.asig.casco.model.Insurance
 import com.asig.casco.model.News
 import com.asig.casco.security.UserDataStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-    private val retrofitFactory: RetrofitFactory,
+    retrofitFactory: RetrofitFactory,
     private val tokenStorage :  UserDataStorage
 ) : ViewModel()
 
@@ -39,7 +36,7 @@ class NewsViewModel @Inject constructor(
                 try {
                     val newsList = newsService.getAllNews("Bearer $token")
                     Log.i("news", newsList.toString())
-                    _newsResult.emit(newsList ?: ArrayList())
+                    _newsResult.emit(newsList)
                 } catch (e: Exception) {
                     Log.i("news error", e.message.toString())
                     _newsResult.emit(ArrayList())

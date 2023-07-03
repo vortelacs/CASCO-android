@@ -1,6 +1,5 @@
 package com.asig.casco.screens.common
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
@@ -15,14 +14,14 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import com.asig.casco.R
-import com.asig.casco.screens.FAQ.FAQScreen
+import com.asig.casco.screens.destinations.AboutAppScreenDestination
+import com.asig.casco.screens.destinations.ContactScreenDestination
 import com.asig.casco.screens.destinations.FAQScreenDestination
 import com.asig.casco.screens.destinations.LoginScreenDestination
 import com.asig.casco.screens.destinations.SettingsScreenDestination
@@ -36,8 +35,6 @@ fun TopBar(
 ) {
     TopAppBar() {
         val listItems = getMenuItemsList()
-
-        val contextForToast = LocalContext.current.applicationContext
 
         // state of the menu
         var expanded by remember {
@@ -105,11 +102,11 @@ fun TopBar(
     fun getMenuItemsList(): ArrayList<MenuItemData> {
         val listItems = ArrayList<MenuItemData>()
 
+        listItems.add(MenuItemData(FAQScreenDestination, text = R.string.faq_screen, icon = Icons.Outlined.Face))
+        listItems.add(MenuItemData(ContactScreenDestination, text = R.string.contact_screen, icon = Icons.Outlined.Email))
+        listItems.add(MenuItemData(AboutAppScreenDestination, text = R.string.about_app_screen, icon = Icons.Outlined.Info))
         listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.settings_screen, icon = Icons.Outlined.Settings))
-        listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.about_us_screen, icon = Icons.Outlined.Star))
-        listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.about_app_screen, icon = Icons.Outlined.Info))
-        listItems.add(MenuItemData(FAQScreenDestination, text = R.string.faq_screen, icon = Icons.Outlined.Info))
-        listItems.add(MenuItemData(LoginScreenDestination, text = R.string.log_out, icon = Icons.Outlined.Info))
+        listItems.add(MenuItemData(LoginScreenDestination, text = R.string.log_out, icon = Icons.Outlined.ExitToApp))
 
         return listItems
     }
