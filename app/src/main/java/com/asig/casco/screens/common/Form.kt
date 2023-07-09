@@ -138,7 +138,9 @@ fun checkBox(
     checked: MutableState<Boolean>
 ){
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
     Checkbox(
         checked = checked.value,
         onCheckedChange = { checked_ ->

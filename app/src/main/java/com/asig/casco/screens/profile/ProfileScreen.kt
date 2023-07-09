@@ -75,6 +75,7 @@ fun ProfileScreen(
     val insurances by insuranceViewModel.getInsurancesResult.collectAsState(initial = ArrayList())
     LaunchedEffect(key1 = "loadInsurances") {
         insuranceViewModel.getInsuranceByEmail("johndoy1@mail.ru")
+
     }
 
     ScaffoldSkeleton(navigator = navigator, titleBar = "Profil") {
@@ -94,7 +95,7 @@ fun ProfileScreen(
             )
             Spacer(modifier = Modifier.height(45.dp))
             Text(
-                text = "user.fullName",
+                text = "Bună John Doy",
                 fontSize = 18.sp,
             )
             Spacer(modifier = Modifier.height(45.dp))
@@ -178,6 +179,11 @@ fun ExpandableInsuranceCard(
                             .fillMaxWidth()
                             .padding(bottom = 10.dp)
                     ) {
+                        Text(
+                            text = "Date automobil:",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -195,7 +201,7 @@ fun ExpandableInsuranceCard(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 TextWithLabel("An", insurance.vehicle.year.toString())
                                 Spacer(modifier = Modifier.height(4.dp))
-                                TextWithLabel("Preț vehicul", insurance.vehicle.carPrice.toString())
+                                TextWithLabel("Preț vehicul", insurance.vehicle.carPrice.toString() + " lei")
                                 Spacer(modifier = Modifier.height(4.dp))
                                 TextWithLabel(
                                     "Nr. certificatului",
@@ -209,7 +215,10 @@ fun ExpandableInsuranceCard(
                             }
                         }
 
-
+                        Text(
+                            text = "Datele persoanei/persoanelor",
+                            fontSize = 16.sp,
+                        )
 
                         insurance.persons.forEach { person ->
                             Card(

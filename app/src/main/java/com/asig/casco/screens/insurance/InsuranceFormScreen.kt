@@ -46,6 +46,7 @@ import com.asig.casco.model.Tariff
 import com.asig.casco.model.Vehicle
 import com.asig.casco.screens.common.checkBox
 import com.asig.casco.screens.common.dropDownMenu
+import com.asig.casco.screens.destinations.HomeScreenDestination
 import com.asig.casco.screens.skeleton.ScaffoldSkeleton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -103,7 +104,7 @@ fun InsuranceFormScreen(
     val acceptDataProcessing = remember { mutableStateOf(false) }
     val acceptTerms = remember { mutableStateOf(false) }
 
-    ScaffoldSkeleton(navigator = navigator, titleBar = "New assurance") {
+    ScaffoldSkeleton(navigator = navigator, titleBar = "Asigurare  nouă") {
 
 
         Column(modifier = Modifier.padding(45.dp, 10.dp, 45.dp, 10.dp),
@@ -252,8 +253,8 @@ fun InsuranceFormScreen(
                                     // Add your API request code here
 
                                     // Show confirmation dialog
-/*                                    showConfirmDialog.value = true
-                                    openDialog.value = true*/
+/*                                    showConfirmDialog.value = true*/
+                                    openDialog.value = true
                                 }
                             },
                             shape = RoundedCornerShape(5.dp),
@@ -263,7 +264,31 @@ fun InsuranceFormScreen(
                         ) {
                             Text(text = "Procură")
                         }
-                        if (showConfirmDialog.value) {
+
+                        if (openDialog.value) {
+                            AlertDialog(
+                                onDismissRequest = {
+                                    openDialog.value = false
+                                },
+                                title = {
+                                    Text(text = "Succes")
+                                },
+                                text = {
+                                    Text("Asigurarea a fost procurată cu succes")
+                                },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            openDialog.value = false
+                                            navigator.navigate(HomeScreenDestination)
+                                        }) {
+                                        Text("Ok")
+                                    }
+                                }
+                            )
+                        }
+
+/*                        if (showConfirmDialog.value) {
                             ConfirmPurchaseDialog(
                                 openDialog = openDialog,
                                 onConfirm = {
@@ -279,7 +304,7 @@ fun InsuranceFormScreen(
                                     showConfirmDialog.value = false
                                 }
                             )
-                        }
+                        }*/
                     }
 
                 }
@@ -411,7 +436,7 @@ fun VehicleDetails(
     Spacer(modifier = Modifier.height(15.dp))
     CustomOutlinedTextField(
         value = year,
-        label = "Anul fabricației",
+        label = "Vârsta automobilului(ani)",
         onValueChange = {
             if (it.text.isFloat()) { // Check if the input is a valid float
                 year.value = year.value.copy(value = it, touched = true)
@@ -522,10 +547,10 @@ fun ConfirmPurchaseDialog(
                 onDismiss()
             },
             title = {
-                Text(text = "Confirm Purchase")
+                Text(text = "Confirmati cumparatura")
             },
             text = {
-                Text("Are you sure you want to buy this assurance?")
+                Text("Sunteti siguri ca vreti sa procurati asigurarea?")
             },
             confirmButton = {
                 Button(

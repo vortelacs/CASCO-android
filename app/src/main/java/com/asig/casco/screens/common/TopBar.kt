@@ -105,7 +105,7 @@ fun TopBar(
         listItems.add(MenuItemData(FAQScreenDestination, text = R.string.faq_screen, icon = Icons.Outlined.Face))
         listItems.add(MenuItemData(ContactScreenDestination, text = R.string.contact_screen, icon = Icons.Outlined.Email))
         listItems.add(MenuItemData(AboutAppScreenDestination, text = R.string.about_app_screen, icon = Icons.Outlined.Info))
-        listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.settings_screen, icon = Icons.Outlined.Settings))
+//        listItems.add(MenuItemData(SettingsScreenDestination, text = R.string.settings_screen, icon = Icons.Outlined.Settings))
         listItems.add(MenuItemData(LoginScreenDestination, text = R.string.log_out, icon = Icons.Outlined.ExitToApp))
 
         return listItems
