@@ -134,9 +134,9 @@ fun InsuranceFormScreen(
                 }
             }else {
                 VehicleDetails(selectedType, make, model, year, price, certificateNumber, registrationNumber)
-                Spacer(modifier = Modifier.height(15.dp))
                 checkBox("Accept termenii si conditiile", acceptDataProcessing)
                 checkBox("Accept prelucrarea datelor cu caracter personal", acceptTerms)
+                Spacer(modifier = Modifier.height(15.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

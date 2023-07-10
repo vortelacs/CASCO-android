@@ -120,6 +120,8 @@ fun ExpandableInsuranceCard(
 ) {
     val pdfViewModel : PDFViewModel = hiltViewModel()
 
+    val pdfResult by pdfViewModel.pdfResult.collectAsState()
+
     var expandedState by remember { mutableStateOf(false) }
     Column {
         Card(
@@ -248,7 +250,9 @@ fun ExpandableInsuranceCard(
                     LaunchedEffect(key1 = "loadpdf") {
                         pdfViewModel.getPDF(insurance.effectiveDate, insurance.price)
                     }
-                    DownloadPdfButton(pdfViewModel.pdfResult.value)
+                    if (pdfResult.isNotEmpty()) {
+                        DownloadPdfButton(pdfResult)
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
 
                 }

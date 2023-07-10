@@ -71,7 +71,7 @@ fun FAQScreen (
 ){
     ScaffoldSkeleton(navigator = navigator, titleBar = "Întrebări frecvente") {
         Column {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
             FAQSection()
         }
 
